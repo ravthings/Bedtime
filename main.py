@@ -64,3 +64,27 @@ class TinyModel(nn.Module):
 model = TinyModel()
 logits = model(xb)
 print(logits.shape)
+
+class Head(nn.Module):
+    def __init__(self, head_size):
+        super().__init__()
+        self.key   = nn.Linear(n_embd, head_size, bias=False)
+        self.query = nn.Linear(n_embd, head_size, bias=False)
+        self.value = nn.Linear(n_embd, head_size, bias=False)
+        self.head_size = head_size
+
+    def __call__(self, x):
+        B, T, C = x.shape
+        k = self.key(x)# what each character has
+        q = self.query(x)# what each character is looking for
+        v = self.value(x) # what each character passes on
+
+        scores = q @ k.transpose(0, 2, 1) * self.head_size ** -0.5   # (B, T, T)
+
+        mask = mx.tril(mx.ones((T, T))) == 1
+        scores = mx.where(mask, scores, float("-inf"))
+
+        weights = mx.softmax(scores, axis=-1)
+
+        out = weights @ v
+        return out
