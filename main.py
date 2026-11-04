@@ -2,6 +2,7 @@ import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 import os
+from mlx.utils import tree_flatten
 
 # load data
 with open("stories.txt", "r", encoding="utf-8") as f:
@@ -27,7 +28,7 @@ val_data = data[n:]
 # hyperparameters
 batch_size = 32
 block_size = 128
-n_embd = 64
+n_embd = 128
 
 def get_batch(split):
     d = train_data if split == "train" else val_data
@@ -121,6 +122,7 @@ def generate(model, idx, max_new_tokens):
     return idx
 
 model = TinyModel()
+print("parameters:", sum(v.size for _, v in tree_flatten(model.parameters())))
 mx.eval(model.parameters())
 optimizer = optim.AdamW(learning_rate=1e-3)
 loss_and_grad = nn.value_and_grad(model, loss_fn)
