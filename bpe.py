@@ -28,3 +28,8 @@ print("most common pair:", repr(bytes(top).decode("utf-8")), "seen", stats[top],
 ids = merge(ids, top, 256)# 256 = first new token (0–255 are taken by bytes)
 print("after one merge:", len(ids))
 
+num_merges = 500# final vocab = 256 bytes + 500 new tokens = 756
+merges = {}# (a, b) -> new token id: the "recipe" the tokenizer learns
+vocab = {i: bytes([i]) for i in range(256)}# token id -> the bytes it stands for
+
+
