@@ -123,3 +123,19 @@ else:
 
 start = mx.array([encode("Once upon a time")])
 print(decode(generate(model, start, 300)[0].tolist()))
+
+def stream(model, prompt, max_new_tokens=500):
+    idx = mx.array([encode(prompt)])
+    print(prompt, end="", flush=True)
+    for _ in range(max_new_tokens):
+        logits = model(idx[:, -block_size:])[:, -1, :]
+        next_id = mx.random.categorical(logits, num_samples=1)
+        idx = mx.concatenate([idx, next_id], axis=1)
+        print(decode([next_id.item()]), end="", flush=True)   # print each character as soon as it's made
+    print()
+
+while True:
+    prompt = input("\nStart your story (or 'quit'): ")
+    if prompt == "quit":
+        break
+    stream(model, prompt)
