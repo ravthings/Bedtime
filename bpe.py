@@ -53,4 +53,5 @@ def encode(text):
         ids = merge(ids, pair, merges[pair])
     return ids
 
-
+def decode(ids):
+    return b"".join(vocab[i] for i in ids).decode("utf-8", errors="replace")
