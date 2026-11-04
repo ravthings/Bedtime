@@ -1,11 +1,11 @@
 with open("stories.txt", "r", encoding="utf-8") as f:
     text = f.read()[:200_000]# small slice to start, because pure Python is slow
-ids = list(text.encode("utf-8"))       # every character -> a byte (a number from 0 to 255)
+ids = list(text.encode("utf-8"))# every character -> a byte (a number from 0 to 255)
 print("starting length:", len(ids))
 
 def get_stats(ids):
     counts = {}
-    for pair in zip(ids, ids[1:]):     # every neighbouring pair
+    for pair in zip(ids, ids[1:]):# every neighbouring pair
         counts[pair] = counts.get(pair, 0) + 1
     return counts
 
@@ -25,6 +25,6 @@ stats = get_stats(ids)
 top = max(stats, key=stats.get)
 print("most common pair:", repr(bytes(top).decode("utf-8")), "seen", stats[top], "times")
 
-ids = merge(ids, top, 256)             # 256 = first new token (0–255 are taken by bytes)
+ids = merge(ids, top, 256)# 256 = first new token (0–255 are taken by bytes)
 print("after one merge:", len(ids))
 
