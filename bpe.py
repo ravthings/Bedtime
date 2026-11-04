@@ -1,3 +1,6 @@
+import json
+import mlx.core as mx
+
 with open("stories.txt", "r", encoding="utf-8") as f:
     text = f.read()[:200_000]# small slice to start, because pure Python is slow
 ids = list(text.encode("utf-8"))# every character -> a byte (a number from 0 to 255)
@@ -55,3 +58,10 @@ def encode(text):
 
 def decode(ids):
     return b"".join(vocab[i] for i in ids).decode("utf-8", errors="replace")
+
+s = "Once upon a time, Lily said hello to her dog."
+tokens = encode(s)
+print(tokens)
+print("characters:", len(s), "→ tokens:", len(tokens))
+print([decode([t]) for t in tokens])      # see how it split the sentence
+print(decode(tokens) == s)      
