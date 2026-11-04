@@ -3,27 +3,26 @@ import mlx.nn as nn
 import mlx.optimizers as optim
 import os
 from mlx.utils import tree_flatten
+import json
 
-# load data
-with open("stories.txt", "r", encoding="utf-8") as f:
-    text = f.read()
+# load the BPE tokenizer
+with open("merges.json") as f:
+    merge_list = json.load(f)
+merges = {(a, b): new_id for a, b, new_id in merge_list}
 
-# character-level tokenizer
-vocab = sorted(set(text))
-vocab_size = len(vocab)
-stoi = {ch: i for i, ch in enumerate(vocab)}
-itos = {i: ch for i, ch in enumerate(vocab)}
+vocab = {i: bytes([i]) for i in range(256)}
+for (a, b), new_id in merges.items():# rebuild what each token means
+    vocab[new_id] = vocab[a] + vocab[b]
+vocab_size = 256 + len(merges)# 756
 
-def encode(s):
-    return [stoi[c] for c in s]
-def decode(ids):
-    return "".join(itos[i] for i in ids)
 
-# data as an MLX array, split 90/10
-data = mx.array(encode(text))
+
+# load the pre-encoded stories
+data = mx.load("tokens.npy")
 n = int(0.9 * len(data))
 train_data = data[:n]
 val_data = data[n:]
+print("tokens:", len(data), "vocab_size:", vocab_size)
 
 # hyperparameters
 batch_size = 32
