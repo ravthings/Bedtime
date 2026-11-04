@@ -99,3 +99,18 @@ mx.eval(model.parameters())
 optimizer = optim.AdamW(learning_rate=1e-3)
 loss_and_grad = nn.value_and_grad(model, loss_fn)
 
+ask = input("Do you you want to train the model? y/n ")
+
+if ask == "y":
+    for step in range(3000):
+        xb, yb = get_batch("train")                    # new batch every step
+        loss, grads = loss_and_grad(model, xb, yb)
+        optimizer.update(model, grads)
+        mx.eval(model.parameters(), optimizer.state)   # "do the maths now"
+
+        if step % 250 == 0:
+            xv, yv = get_batch("val")
+            val_loss = loss_fn(model, xv, yv)
+            print(f"step {step}: train {loss.item():.3f}, val {val_loss.item():.3f}")
+
+    model.save_weights("tiny.safetensors")
