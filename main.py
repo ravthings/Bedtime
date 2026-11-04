@@ -29,6 +29,7 @@ val_data = data[n:]
 batch_size = 32
 block_size = 128
 n_embd = 128
+save_file = "tiny_v3.safetensors"
 
 def get_batch(split):
     d = train_data if split == "train" else val_data
@@ -135,8 +136,8 @@ if ask == "y":
     learningr = input("What would you like the learning rate to be? ")
     lr = float(learningr)
     optimizer = optim.AdamW(learning_rate=lr, weight_decay=0.05)
-    if os.path.exists("tiny.safetensors"):
-        model.load_weights("tiny.safetensors")
+    if os.path.exists(save_file):
+        model.load_weights(save_file)
         print("Resuming from saved model")
     else:
         print("No saved model, training from scratch")
@@ -152,9 +153,9 @@ if ask == "y":
             val_loss = loss_fn(model, xv, yv)
             print(f"epoch {epoch}: train {loss.item():.3f}, val {val_loss.item():.3f}")
 
-    model.save_weights("tiny.safetensors")
+    model.save_weights(save_file)
 elif ask == "n":
-    model.load_weights("tiny.safetensors")
+    model.load_weights(save_file)
 else:
     print("Invalid input")
     exit()
