@@ -65,3 +65,21 @@ print(tokens)
 print("characters:", len(s), "→ tokens:", len(tokens))
 print([decode([t]) for t in tokens])      # see how it split the sentence
 print(decode(tokens) == s)      
+
+with open("merges.json", "w") as f:
+    json.dump([[a, b, new_id] for (a, b), new_id in merges.items()], f)
+print("saved merges.json")
+
+# 2. encode a big slice of stories, applying merges in the order they were learned
+with open("stories.txt", "r", encoding="utf-8") as f:
+    big_text = f.read()[:3_000_000]
+
+big_ids = list(big_text.encode("utf-8"))
+for i, (pair, new_id) in enumerate(merges.items()):
+    big_ids = merge(big_ids, pair, new_id)
+    if i % 50 == 0:
+        print(f"encoding... merge {i}/{num_merges}, length {len(big_ids)}")
+
+mx.save("tokens.npy", mx.array(big_ids))
+print("saved tokens.npy:", len(big_ids), "tokens")
+
