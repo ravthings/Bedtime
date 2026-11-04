@@ -97,15 +97,16 @@ class TinyModel(nn.Module):
         super().__init__()
         self.tok_emb = nn.Embedding(vocab_size, n_embd)
         self.pos_emb = nn.Embedding(block_size, n_embd)
-        self.sa_head = Head(n_embd)
+        self.blocks = nn.Sequential(*[Block(n_head=4) for _ in range(4)])# 4 blocks
+        self.ln_f = nn.LayerNorm(n_embd)
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def __call__(self, idx):
         B, T = idx.shape
         x = self.tok_emb(idx) + self.pos_emb(mx.arange(T))
-        x = self.sa_head(x)
-        logits = self.lm_head(x)
-        return logits
+        x = self.blocks(x)
+        x = self.ln_f(x)
+        return self.lm_head(x)
 
 def loss_fn(model, x, y):
     logits = model(x)
