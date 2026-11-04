@@ -57,6 +57,16 @@ class Head(nn.Module):
         out = weights @ v
         return out
 
+class MultiHeadAttention(nn.Module):
+    def __init__(self, num_heads, head_size):
+        super().__init__()
+        self.heads = [Head(head_size) for _ in range(num_heads)]   # several heads side by side
+        self.proj = nn.Linear(num_heads * head_size, n_embd)       # mix their outputs together
+
+    def __call__(self, x):
+        out = mx.concatenate([h(x) for h in self.heads], axis=-1)  # join the heads' outputs
+        return self.proj(out)
+
 class TinyModel(nn.Module):
     def __init__(self):
         super().__init__()
