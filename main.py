@@ -67,6 +67,31 @@ class MultiHeadAttention(nn.Module):
         out = mx.concatenate([h(x) for h in self.heads], axis=-1)  # join the heads' outputs
         return self.proj(out)
 
+class FeedForward(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(n_embd, 4 * n_embd),
+            nn.ReLU(),
+            nn.Linear(4 * n_embd, n_embd),
+        )
+
+    def __call__(self, x):
+        return self.net(x)
+
+class Block(nn.Module):
+    def __init__(self, n_head):
+        super().__init__()
+        self.sa = MultiHeadAttention(n_head, n_embd // n_head)
+        self.ffwd = FeedForward()
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
+
+    def __call__(self, x):
+        x = x + self.sa(self.ln1(x))      # characters talk to each other
+        x = x + self.ffwd(self.ln2(x))    # each character thinks on its own
+        return x
+
 class TinyModel(nn.Module):
     def __init__(self):
         super().__init__()
