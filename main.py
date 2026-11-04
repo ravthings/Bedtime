@@ -1,6 +1,7 @@
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
+import os
 
 # load data
 with open("stories.txt", "r", encoding="utf-8") as f:
@@ -95,6 +96,13 @@ if ask == "y":
     epochs = int(epoche)
     learningr = input("What would you like the learning rate to be? ")
     lr = float(learningr)
+    optimizer = optim.AdamW(learning_rate=lr, weight_decay=0.05)
+    if os.path.exists("tiny.safetensors"):
+        model.load_weights("tiny.safetensors")
+        print("Resuming from saved model")
+    else:
+        print("No saved model, training from scratch")
+
     for epoch in range(epochs):
         xb, yb = get_batch("train")
         loss, grads = loss_and_grad(model, xb, yb)
