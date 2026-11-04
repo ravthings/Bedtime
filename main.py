@@ -1,5 +1,6 @@
 import mlx.core as mx
 import mlx.nn as nn
+import mlx.optimizers as optim
 
 # load data
 with open("stories.txt", "r", encoding="utf-8") as f:
@@ -88,3 +89,13 @@ class Head(nn.Module):
 
         out = weights @ v
         return out
+
+def loss_fn(model, x, y):
+    logits = model(x)
+    return nn.losses.cross_entropy(logits, y, reduction="mean")
+
+model = TinyModel()
+mx.eval(model.parameters())
+optimizer = optim.AdamW(learning_rate=1e-3)
+loss_and_grad = nn.value_and_grad(model, loss_fn)
+
