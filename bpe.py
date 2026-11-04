@@ -32,4 +32,19 @@ num_merges = 500# final vocab = 256 bytes + 500 new tokens = 756
 merges = {}# (a, b) -> new token id: the "recipe" the tokenizer learns
 vocab = {i: bytes([i]) for i in range(256)}# token id -> the bytes it stands for
 
+for i in range(num_merges):
+    stats = get_stats(ids)
+    pair = max(stats, key=stats.get)
+    new_id = 256 + i
+    ids = merge(ids, pair, new_id)
+    merges[pair] = new_id
+    vocab[new_id] = vocab[pair[0]] + vocab[pair[1]]          # join the bytes together
+
+    if i % 50 == 0:
+        word = vocab[new_id].decode("utf-8", errors="replace")
+        print(f"merge {i}: {repr(word)}  (length now {len(ids)})")
+
+print("final length:", len(ids))
+print("compression:", round(200746 / len(ids), 2), "x")
+
 
