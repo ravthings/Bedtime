@@ -48,15 +48,15 @@ print("first sequence:", decode(xb[0].tolist()))
 class TinyModel(nn.Module):
     def __init__(self):
         super().__init__()
-        self.tok_emb = nn.Embedding(vocab_size, n_embd) # one row per character
-        self.pos_emb = nn. Embedding(block_size, n_embd) # one row per position
-        self.lm_head = nn.Linear(n_embd, vocab_size) # vector -> score for every character
+        self.tok_emb = nn.Embedding(vocab_size, n_embd)
+        self.pos_emb = nn.Embedding(block_size, n_embd)
+        self.sa_head = Head(n_embd)# one attention head
+        self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def __call__(self, idx):
         B, T = idx.shape
-        tok = self.tok_emb(idx) # what each character is
-        pos = self.pos_emb(mx.arange(T)) # where each character is
-        x = tok + pos # combine both
+        x = self.tok_emb(idx) + self.pos_emb(mx.arange(T))
+        x = self.sa_head(x)#characters look at each other
         logits = self.lm_head(x)
         return logits
 
