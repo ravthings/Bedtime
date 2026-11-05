@@ -71,7 +71,7 @@ def get_batch(split):
 class Head(nn.Module):
     def __init__(self, head_size):
         super().__init__()
-        selnkey   = nn.Linear(n_embd, head_size, bias=False)
+        self.key   = nn.Linear(n_embd, head_size, bias=False)
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
         self.head_size = head_size
@@ -79,8 +79,9 @@ class Head(nn.Module):
     def __call__(self, x):
         B, T, C = x.shape
         k = self.key(x)     # what each character has
-        q = self.query(x)   # what each character is looking for
+        q = self.query(x)   # what eacnh character is looking for
         v = self.value(x)   # what each character passes on
+        
 
         scores = q @ k.transpose(0, 2, 1) * self.head_size ** -0.5
         mask = mx.tril(mx.ones((T, T))) == 1
