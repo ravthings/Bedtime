@@ -30,6 +30,20 @@ def merge(ids, pair, new_id):
             out.append(ids[i]); i += 1
     return out
 
+def encode(text):
+    ids = list(text.encode("utf-8"))
+    while len(ids) >= 2:
+        stats = get_stats(ids)
+        # pick the pair that was learned EARLIEST (lowest new id)
+        pair = min(stats, key=lambda p: merges.get(p, float("inf")))
+        if pair not in merges:
+            break                            # no more merges apply
+        ids = merge(ids, pair, merges[pair])
+    return ids
+
+def decode(ids):
+    return b"".join(vocab[i] for i in ids).decode("utf-8", errors="replace")
+
 # load the pre-encoded stories
 data = mx.load("tokens.npy")
 n = int(0.9 * len(data))
