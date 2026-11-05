@@ -71,7 +71,7 @@ def get_batch(split):
 class Head(nn.Module):
     def __init__(self, head_size):
         super().__init__()
-        self.key   = nn.Linear(n_embd, head_size, bias=False)
+        selnkey   = nn.Linear(n_embd, head_size, bias=False)
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
         self.head_size = head_size
@@ -186,7 +186,6 @@ if ask == "y":
     model.save_weights(save_file)
 elif ask == "n":
     model.load_weights(save_file)
-    print(loss.item(), val_loss.item())
 else:
     print("Invalid input")
     exit()
