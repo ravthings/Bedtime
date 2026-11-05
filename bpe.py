@@ -72,7 +72,7 @@ print("saved merges.json")
 
 # 2. encode a big slice of stories, applying merges in the order they were learned
 with open("stories.txt", "r", encoding="utf-8") as f:
-    big_text = f.read()[:3_000_000]
+    big_text = f.read()[:12_000_000]
 
 big_ids = list(big_text.encode("utf-8"))
 for i, (pair, new_id) in enumerate(merges.items()):
