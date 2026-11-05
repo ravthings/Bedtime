@@ -51,6 +51,10 @@ train_data = data[:n]
 val_data = data[n:]
 print("tokens:", len(data), "vocab_size:", vocab_size)
 
+print("biggest token in data:", data.max().item())
+print("len(merges):", len(merges))
+print("data type:", data.dtype)
+
 # hyperparameters
 batch_size = 32
 block_size = 128
@@ -182,6 +186,7 @@ if ask == "y":
     model.save_weights(save_file)
 elif ask == "n":
     model.load_weights(save_file)
+    print(loss.item(), val_loss.item())
 else:
     print("Invalid input")
     exit()
