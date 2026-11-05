@@ -18,13 +18,13 @@ https://github.com/user-attachments/assets/65db3cf9-95e5-4d05-9f02-d23208caadb9
 ## How it works
 
 - **Data:** 20,000 stories from the [TinyStories](https://huggingface.co/datasets/roneneldan/TinyStories) dataset
-- **Tokenizer:** character-level (each letter is a token)
+- **Tokenizer:** BPE tokenizer
 - **Model:** a decoder-only transformer
   - token and position embeddings
   - 4 blocks, each with 4-head self-attention and a feed-forward layer
   - residual connections and LayerNorm
   - embedding size [64 / 128], context of 128 characters
-  - about 800 000 parameters
+  - about 1 000 000 parameters
 - **Training:** AdamW (learning rate 0.001, weight decay 0.05), 5,000 steps on a Mac
 
 ## Results
