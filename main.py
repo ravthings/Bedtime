@@ -19,7 +19,6 @@ def decode(ids):
 data = mx.load("tokens_gpt2.npy")
 
 # load the pre-encoded stories
-data = mx.load("tokens.npy")
 n = int(0.9 * len(data))
 train_data = data[:n]
 val_data = data[n:]
@@ -68,7 +67,7 @@ class MultiHeadAttention(nn.Module):
     def __init__(self, num_heads, head_size):
         super().__init__()
         self.heads = [Head(head_size) for _ in range(num_heads)]   # several heads side by side
-        self.proj = nn.Linear(num_heads * head_size, n_embd)       # mix their outputs together
+        self.proj = nn.Linear(num_heads * head_size, n_embd, bias=False)     # mix their outputs together
 
     def __call__(self, x):
         out = mx.concatenate([h(x) for h in self.heads], axis=-1)  # join the heads' outputs
@@ -104,14 +103,13 @@ class TinyModel(nn.Module):
         self.tok_emb = nn.Embedding(vocab_size, n_embd)
         self.blocks = nn.Sequential(*[Block(n_head=4) for _ in range(4)])# 4 blocks
         self.ln_f = nn.RMSNorm(n_embd)
-        self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def __call__(self, idx):
         B, T = idx.shape
         x = self.tok_emb(idx)
         x = self.blocks(x)
         x = self.ln_f(x)
-        return self.lm_head(x)
+        return self.tok_emb.as_linear(x)
 
 def loss_fn(model, x, y):
     logits = model(x)
