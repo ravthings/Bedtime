@@ -59,7 +59,7 @@ print("data type:", data.dtype)
 batch_size = 32
 block_size = 128
 n_embd = 128
-save_file = "bedtime_swiglu.safetensors"
+save_file = "bedtime_rope.safetensors"
 
 def get_batch(split):
     d = train_data if split == "train" else val_data
@@ -129,14 +129,13 @@ class TinyModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.tok_emb = nn.Embedding(vocab_size, n_embd)
-        self.pos_emb = nn.Embedding(block_size, n_embd)
         self.blocks = nn.Sequential(*[Block(n_head=4) for _ in range(4)])# 4 blocks
         self.ln_f = nn.RMSNorm(n_embd)
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def __call__(self, idx):
         B, T = idx.shape
-        x = self.tok_emb(idx) + self.pos_emb(mx.arange(T))
+        x = self.tok_emb(idx)
         x = self.blocks(x)
         x = self.ln_f(x)
         return self.lm_head(x)
