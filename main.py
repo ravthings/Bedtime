@@ -59,7 +59,7 @@ print("data type:", data.dtype)
 batch_size = 32
 block_size = 128
 n_embd = 128
-save_file = "tiny_v3.safetensors"
+save_file = "bedtime_rms.safetensors"
 
 def get_batch(split):
     d = train_data if split == "train" else val_data
@@ -103,22 +103,21 @@ class MultiHeadAttention(nn.Module):
 class FeedForward(nn.Module):
     def __init__(self):
         super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(n_embd, 4 * n_embd),
-            nn.ReLU(),
-            nn.Linear(4 * n_embd, n_embd),
-        )
+        hidden = 4 * n_embd * 2 // 3          # 341: keeps the size about the same as before
+        self.gate_proj = nn.Linear(n_embd, hidden, bias=False)
+        self.up_proj   = nn.Linear(n_embd, hidden, bias=False)
+        self.down_proj = nn.Linear(hidden, n_embd, bias=False)
 
     def __call__(self, x):
-        return self.net(x)
+        return self.down_proj(nn.silu(self.gate_proj(x)) * self.up_proj(x))
 
 class Block(nn.Module):
     def __init__(self, n_head):
         super().__init__()
         self.sa = MultiHeadAttention(n_head, n_embd // n_head)
         self.ffwd = FeedForward()
-        self.ln1 = nn.LayerNorm(n_embd)
-        self.ln2 = nn.LayerNorm(n_embd)
+        self.ln1 = nn.RMSNorm(n_embd)
+        self.ln2 = nn.RMSNorm(n_embd)
 
     def __call__(self, x):
         x = x + self.sa(self.ln1(x))      # characters talk to each other
@@ -131,7 +130,7 @@ class TinyModel(nn.Module):
         self.tok_emb = nn.Embedding(vocab_size, n_embd)
         self.pos_emb = nn.Embedding(block_size, n_embd)
         self.blocks = nn.Sequential(*[Block(n_head=4) for _ in range(4)])# 4 blocks
-        self.ln_f = nn.LayerNorm(n_embd)
+        self.ln_f = nn.RMSNorm(n_embd)
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def __call__(self, idx):
