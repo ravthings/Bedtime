@@ -59,7 +59,7 @@ print("data type:", data.dtype)
 batch_size = 32
 block_size = 128
 n_embd = 128
-save_file = "bedtime_rms.safetensors"
+save_file = "bedtime_swiglu.safetensors"
 
 def get_batch(split):
     d = train_data if split == "train" else val_data
@@ -74,13 +74,14 @@ class Head(nn.Module):
         self.key   = nn.Linear(n_embd, head_size, bias=False)
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
+        self.rope  = nn.RoPE(head_size)                 # NEW
         self.head_size = head_size
 
     def __call__(self, x):
         B, T, C = x.shape
-        k = self.key(x)     # what each character has
-        q = self.query(x)   # what eacnh character is looking for
-        v = self.value(x)   # what each character passes on
+        k = self.rope(self.key(x))                   
+        q = self.rope(self.query(x))                   
+        v = self.value(x)                               
         
 
         scores = q @ k.transpose(0, 2, 1) * self.head_size ** -0.5
