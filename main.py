@@ -4,45 +4,19 @@ import mlx.optimizers as optim
 import os
 from mlx.utils import tree_flatten
 import json
+import tiktoken
 
-# load the BPE tokenizer
-with open("merges.json") as f:
-    merge_list = json.load(f)
-merges = {(a, b): new_id for a, b, new_id in merge_list}
+import tiktoken
+enc = tiktoken.get_encoding("gpt2")
+vocab_size = enc.n_vocab                   # 50257
+EOT = enc.eot_token
 
-vocab = {i: bytes([i]) for i in range(256)}
-for (a, b), new_id in merges.items():# rebuild what each token means
-    vocab[new_id] = vocab[a] + vocab[b]
-vocab_size = 256 + len(merges)# 756
-
-def get_stats(ids):
-    counts = {}
-    for pair in zip(ids, ids[1:]):
-        counts[pair] = counts.get(pair, 0) + 1
-    return counts
-
-def merge(ids, pair, new_id):
-    out, i = [], 0
-    while i < len(ids):
-        if i < len(ids) - 1 and ids[i] == pair[0] and ids[i + 1] == pair[1]:
-            out.append(new_id); i += 2
-        else:
-            out.append(ids[i]); i += 1
-    return out
-
-def encode(text):
-    ids = list(text.encode("utf-8"))
-    while len(ids) >= 2:
-        stats = get_stats(ids)
-        # pick the pair that was learned EARLIEST (lowest new id)
-        pair = min(stats, key=lambda p: merges.get(p, float("inf")))
-        if pair not in merges:
-            break                            # no more merges apply
-        ids = merge(ids, pair, merges[pair])
-    return ids
-
+def encode(s):
+    return enc.encode(s)
 def decode(ids):
-    return b"".join(vocab[i] for i in ids).decode("utf-8", errors="replace")
+    return enc.decode(ids)
+
+data = mx.load("tokens_gpt2.npy")
 
 # load the pre-encoded stories
 data = mx.load("tokens.npy")
@@ -52,7 +26,6 @@ val_data = data[n:]
 print("tokens:", len(data), "vocab_size:", vocab_size)
 
 print("biggest token in data:", data.max().item())
-print("len(merges):", len(merges))
 print("data type:", data.dtype)
 
 # hyperparameters
