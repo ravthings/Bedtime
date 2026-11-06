@@ -32,7 +32,7 @@ print("data type:", data.dtype)
 batch_size = 32
 block_size = 128
 n_embd = 128
-save_file = "bedtime_rope.safetensors"
+save_file = "bedtime_llama.safetensors"
 
 def get_batch(split):
     d = train_data if split == "train" else val_data
@@ -172,6 +172,8 @@ def stream(model, prompt, max_new_tokens=500):
     for _ in range(max_new_tokens):
         logits = model(idx[:, -block_size:])[:, -1, :]
         next_id = mx.random.categorical(logits, num_samples=1)
+        if next_id.item() == EOT:
+            break
         idx = mx.concatenate([idx, next_id], axis=1)
         print(decode([next_id.item()]), end="", flush=True)   # print each character as soon as it's made
     print()
