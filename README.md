@@ -13,8 +13,7 @@ ollama run ravthings/bedtime "Once upon a time,
 ## Demo
 
 
-https://github.com/user-attachments/assets/65db3cf9-95e5-4d05-9f02-d23208caadb9
-
+https://github.com/user-attachments/assets/41bd3e3b-fb77-4554-a149-3a6f6e97d5bc
 
 
 ## Example
