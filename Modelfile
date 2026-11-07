@@ -1,0 +1,5 @@
+FROM ./bedtime.gguf
+TEMPLATE "{{ .Prompt }}"
+PARAMETER stop "<|endoftext|>"
+PARAMETER temperature 0.8
+PARAMETER num_ctx 128
