@@ -4,6 +4,13 @@ A small transformer that writes short children's stories, built from scratch in 
 
 Give it the start of a story like, Once upon a time, and it continues it, character by character.
 
+## To run
+
+```
+ollama create bedtime -f Modelfile
+ollama run bedtime "Once upon a time,"
+```
+
 ## Demo
 
 
