@@ -7,8 +7,7 @@ Give it the start of a story like, Once upon a time, and it continues it, charac
 ## To run
 
 ```
-ollama create bedtime -f Modelfile
-ollama run bedtime "Once upon a time,"
+ollama run ravthings/bedtime "Once upon a time,
 ```
 
 ## Demo
